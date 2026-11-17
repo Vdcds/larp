@@ -1,0 +1,64 @@
+# PR4: Knowledge Representation and Expert System
+
+# * Common: Knowledge base (facts and rules)
+facts = {
+    "fever": True,
+    "cough": True,
+    "cold": True
+}
+
+rules = {
+    "flu": ["fever", "cough"],
+    "infection": ["fever", "cold"],
+    "doctor_visit": ["flu"]
+}
+
+
+# * Common: Forward Chaining
+def forward_chaining(facts, rules):
+    inferred = facts.copy()
+
+    while True:
+        new_fact = False
+
+        for conclusion, conditions in rules.items():
+            if all(inferred.get(condition, False) for condition in conditions):
+                if not inferred.get(conclusion, False):
+                    inferred[conclusion] = True
+                    new_fact = True
+
+        if not new_fact:
+            break
+
+    return inferred
+
+
+# * Common: Backward Chaining
+def backward_chaining(goal, facts, rules):
+    if facts.get(goal, False):
+        return True
+
+    if goal not in rules:
+        return False
+
+    return all(
+        backward_chaining(condition, facts, rules)
+        for condition in rules[goal]
+    )
+
+
+# * Common: Display results
+print("Forward Chaining Results:")
+result = forward_chaining(facts, rules)
+
+for fact, value in result.items():
+    if value:
+        print(fact, ":", value)
+
+print("\nBackward Chaining Results:")
+goal = "doctor_visit"
+
+if backward_chaining(goal, facts, rules):
+    print(goal, ": True")
+else:
+    print(goal, ": False")

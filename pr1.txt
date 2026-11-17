@@ -1,0 +1,42 @@
+
+# PR1: Intelligent Agent and PEAS Representation
+
+import random
+
+# * Task 1: PEAS representation
+peas = {
+    "Performance Measure": "Comfort and energy saving",
+    "Environment": "Smart Home",
+    "Actuators": "AC and Lights",
+    "Sensors": "Temperature and Motion"
+}
+
+print("PEAS Representation:")
+for key, value in peas.items():
+    print(key, ":", value)
+
+
+# * Task 2: Sensor readings (simulation)
+temperature = random.randint(20, 35)
+motion = random.choice(["yes", "no"])
+
+print("\nTemperature:", temperature)
+print("Motion detected:", motion)
+
+
+# * Task 3: Agent decision making
+if temperature > 28:
+    ac = "ON"
+else:
+    ac = "OFF"
+
+if motion == "yes":
+    light = "ON"
+else:
+    light = "OFF"
+
+
+# * Task 4: Agent actions
+print("\nSmart Home Agent Actions:")
+print("AC:", ac)
+print("Light:", light)

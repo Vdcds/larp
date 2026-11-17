@@ -1,0 +1,83 @@
+from collections import deque
+
+# * Common: Graph representation
+graph = {
+    'A': ['B', 'C', 'D'],
+    'B': ['E', 'F'],
+    'C': ['G'],
+    'D': ['H'],
+    'E': ['I'],
+    'F': ['J', 'K'],
+    'G': [],
+    'H': [],
+    'I': [],
+    'J': ['L'],
+    'K': [],
+    'L': []
+}
+
+start = 'A'
+goal = 'L'
+
+
+# * Common: Breadth First Search (BFS)
+def bfs(graph, start, goal):
+    queue = deque([[start]])
+    visited = set()
+
+    while queue:
+        path = queue.popleft()
+        node = path[-1]
+
+        if node == goal:
+            return path
+
+        if node not in visited:
+            visited.add(node)
+
+            for neighbour in graph[node]:
+                new_path = path + [neighbour]
+                queue.append(new_path)
+
+    return None
+
+
+# * Common: Depth First Search (DFS)
+def dfs(graph, start, goal):
+    stack = [[start]]
+    visited = set()
+
+    while stack:
+        path = stack.pop()
+        node = path[-1]
+
+        if node == goal:
+            return path
+
+        if node not in visited:
+            visited.add(node)
+
+            for neighbour in reversed(graph[node]):
+                new_path = path + [neighbour]
+                stack.append(new_path)
+
+    return None
+
+
+# * Common: Display results
+bfs_path = bfs(graph, start, goal)
+dfs_path = dfs(graph, start, goal)
+
+if bfs_path:
+    print("BFS Route:", " -> ".join(bfs_path))
+    print("Route Length:", len(bfs_path) - 1)
+else:
+    print("BFS Route not found")
+
+print()
+
+if dfs_path:
+    print("DFS Route:", " -> ".join(dfs_path))
+    print("Route Length:", len(dfs_path) - 1)
+else:
+    print("DFS Route not found")

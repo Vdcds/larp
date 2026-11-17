@@ -1,0 +1,110 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.datasets import load_breast_cancer
+
+# * Load Breast Cancer dataset
+
+data = load_breast_cancer()
+
+df = pd.DataFrame(data.data, columns=data.feature_names)
+df["Result"] = data.target
+
+print(df.head())
+
+X = df.drop("Result", axis=1)
+y = df["Result"]
+
+print("Features:")
+print(X.head())
+
+print("\nTarget:")
+print(y.head())
+
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("Data standardized successfully!")
+
+# * Training Logistic Regression
+
+lr_model = LogisticRegression(max_iter=5000)
+
+lr_model.fit(X_train_scaled, y_train)
+
+lr_pred = lr_model.predict(X_test_scaled)
+
+print("Logistic Regression trained successfully!")
+print("Predictions:", lr_pred)
+
+# * Training KNN
+
+knn_model = KNeighborsClassifier(n_neighbors=3)
+
+knn_model.fit(X_train_scaled, y_train)
+
+knn_pred = knn_model.predict(X_test_scaled)
+
+print("KNN model trained successfully!")
+print("Predictions:", knn_pred)
+
+
+
+# * Evaluate both models
+
+lr_accuracy = accuracy_score(y_test, lr_pred)
+knn_accuracy = accuracy_score(y_test, knn_pred)
+
+print("Logistic Regression Accuracy:",
+      round(lr_accuracy * 100, 2), "%")
+
+print("KNN Accuracy:",
+      round(knn_accuracy * 100, 2), "%")
+
+print("Logistic Regression Report:")
+print(classification_report(y_test, lr_pred))
+
+print("Logistic Regression Confusion Matrix:")
+print(confusion_matrix(y_test, lr_pred))
+
+
+print("\nKNN Classification Report:")
+print(classification_report(y_test, knn_pred))
+
+print("KNN Confusion Matrix:")
+print(confusion_matrix(y_test, knn_pred))
+
+models = ["Logistic Regression", "KNN"]
+accuracies = [lr_accuracy * 100, knn_accuracy * 100]
+
+plt.figure(figsize=(7, 5))
+plt.bar(models, accuracies)
+
+plt.ylabel("Accuracy (%)")
+plt.title("Comparison of Classification Algorithms")
+plt.ylim(0, 100)
+plt.show()
+
+# * Predict using a sample from test data
+
+sample = X_test.iloc[[0]]
+sample_scaled = scaler.transform(sample)
+
+lr_result = lr_model.predict(sample_scaled)[0]
+knn_result = knn_model.predict(sample_scaled)[0]
+
+print("Actual Result:",
+      "Benign" if y_test.iloc[0] == 1 else "Malignant")
+
+print("Logistic Regression:",
+      "Benign" if lr_result == 1 else "Malignant")
+
+print("KNN:",
+      "Benign" if knn_result == 1 else "Malignant")
