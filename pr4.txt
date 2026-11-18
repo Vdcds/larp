@@ -1,64 +1,63 @@
+
 # PR4: Knowledge Representation and Expert System
 
-# * Common: Knowledge base (facts and rules)
-facts = {
-    "fever": True,
-    "cough": True,
-    "cold": True
-}
-
-rules = {
-    "flu": ["fever", "cough"],
-    "infection": ["fever", "cold"],
-    "doctor_visit": ["flu"]
+# * TASK 1: Define knowledge base
+knowledge_base = {
+    "flu": ["fever", "cough", "body_pain"],
+    "cold": ["cough", "sneezing", "runny_nose"],
+    "infection": ["fever", "body_pain"],
+    "doctor_visit": ["high_fever", "breathing_problem"]
 }
 
 
-# * Common: Forward Chaining
-def forward_chaining(facts, rules):
-    inferred = facts.copy()
+# * TASK 2: Take user input
+print("MEDICAL EXPERT SYSTEM")
+print("---------------------")
 
-    while True:
-        new_fact = False
+print("Enter your symptoms (yes/no):")
 
-        for conclusion, conditions in rules.items():
-            if all(inferred.get(condition, False) for condition in conditions):
-                if not inferred.get(conclusion, False):
-                    inferred[conclusion] = True
-                    new_fact = True
+symptoms = [
+    "fever",
+    "cough",
+    "body_pain",
+    "sneezing",
+    "runny_nose",
+    "high_fever",
+    "breathing_problem"
+]
 
-        if not new_fact:
-            break
+facts = []
 
-    return inferred
+for symptom in symptoms:
+    answer = input("Do you have " + symptom.replace("_", " ") + "? ").lower()
 
-
-# * Common: Backward Chaining
-def backward_chaining(goal, facts, rules):
-    if facts.get(goal, False):
-        return True
-
-    if goal not in rules:
-        return False
-
-    return all(
-        backward_chaining(condition, facts, rules)
-        for condition in rules[goal]
-    )
+    if answer == "yes":
+        facts.append(symptom)
 
 
-# * Common: Display results
-print("Forward Chaining Results:")
-result = forward_chaining(facts, rules)
+# * TASK 3: Apply Forward Chaining
+print("\nInitial Facts:", facts)
 
-for fact, value in result.items():
-    if value:
-        print(fact, ":", value)
+conclusions = []
 
-print("\nBackward Chaining Results:")
-goal = "doctor_visit"
+for disease, conditions in knowledge_base.items():
 
-if backward_chaining(goal, facts, rules):
-    print(goal, ": True")
+    if all(condition in facts for condition in conditions):
+        conclusions.append(disease)
+
+
+# * TASK 4: Display results
+print("\nExpert System Results:")
+
+if conclusions:
+    for result in conclusions:
+        print("Possible condition:", result.replace("_", " ").title())
 else:
-    print(goal, ": False")
+    print("No matching condition found.")
+
+print("\nNote: This is only a simple educational demonstration.")
+print("Please consult a doctor for medical advice.")
+
+
+# * TASK 5: Completion
+print("\nExpert System completed successfully!")

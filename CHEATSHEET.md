@@ -51,22 +51,30 @@ new_f = new_g + heuristic[neighbour]
 
 Viva: Why can greedy miss the cheapest route? It ignores the cost already paid. The name `greedy_bfs` here means best-first, not breadth-first.
 
-## PR4: Forward and backward chaining
+## PR4: Interactive rule-based expert system
 
-| Method | Starts with | Main question |
-| --- | --- | --- |
-| Forward chaining | Facts | What conclusions follow? |
-| Backward chaining | A goal | Can the supporting conditions be proved? |
+Seven prompts collect symptoms into `facts`. Every rule uses AND, and several rules can match the same answers.
 
-```text
-fever AND cough => flu
-fever AND cold  => infection
-flu            => doctor_visit
+| Conclusion | Required input facts |
+| --- | --- |
+| `flu` | `fever`, `cough`, `body_pain` |
+| `cold` | `cough`, `sneezing`, `runny_nose` |
+| `infection` | `fever`, `body_pain` |
+| `doctor_visit` | `high_fever`, `breathing_problem` |
+
+```python
+for disease, conditions in knowledge_base.items():
+	if all(condition in facts for condition in conditions):
+		conclusions.append(disease)
 ```
 
-All conditions use AND through `all(...)`. Forward chaining derives `flu`, `infection`, and `doctor_visit` and stops when a scan adds nothing. Backward chaining proves `doctor_visit` through `flu`, then `fever` and `cough`.
+- Input order is fever, cough, body pain, sneezing, runny nose, high fever, and breathing problem.
+- `yes, yes, yes, no, no, no, no` produces `Flu` and `Infection`.
+- All `yes` produces all four labels. All `no` produces `No matching condition found.`
+- `.lower()` accepts `YES`; it does not trim spaces or accept `y` as `yes`.
+- `high_fever` does not imply `fever` in this code. `doctor_visit` no longer depends on `flu`.
 
-Viva: What is missing for arbitrary rule graphs? The backward function needs cycle handling to avoid infinite recursion. The dictionary stores one condition list per conclusion; it does not represent alternative rules for the same conclusion.
+Viva: Is this full forward and backward chaining? It is one pass of data-driven rule matching. Conclusions are not reused as facts, and backward chaining is not implemented. The displayed labels come from educational toy rules, not validated diagnostic reasoning.
 
 ## PR5: Titanic preprocessing and EDA
 

@@ -52,14 +52,14 @@ def check_documents():
             if cell["cell_type"] == "code"
         )
         ast.parse(code, filename=f"pr{number}.ipynb")
-        if number == 7:
+        if number in (4, 7):
             assert ast.dump(ast.parse(text)) == ast.dump(ast.parse(code)), (
-                "PR7 text and notebook code differ"
+                f"PR{number} text and notebook code differ"
             )
     print("PASS: 14 documents, local links, Python snippets, and 11 program pairs")
 
 
-def run_program(number, notebook=False):
+def run_program(number, notebook=False, output=None):
     if notebook:
         data = json.loads((ROOT / f"pr{number}.ipynb").read_text())
         code = "\n".join(
@@ -70,7 +70,7 @@ def run_program(number, notebook=False):
     else:
         code = (ROOT / f"pr{number}.txt").read_text()
     namespace = {"__name__": "__main__"}
-    with redirect_stdout(io.StringIO()):
+    with redirect_stdout(output if output is not None else io.StringIO()):
         exec(compile(code, f"pr{number}", "exec"), namespace)
     return namespace
 
@@ -100,12 +100,31 @@ def check_search_and_rules():
     for node, edges in graph.items():
         for neighbor, cost in edges:
             assert heuristic[node] <= cost + heuristic[neighbor]
-    result = run_program(4)
-    assert set(result["result"]) == {
-        "fever", "cough", "cold", "flu", "infection", "doctor_visit"
-    }
-    assert result["backward_chaining"]("doctor_visit", result["facts"], result["rules"])
-    print("PASS: PR1 threshold examples, PR2 routes, PR3 costs and heuristic, PR4 conclusions")
+    print("PASS: PR1 threshold examples, PR2 routes, PR3 costs and heuristic")
+
+
+def check_expert_system():
+    scenarios = [
+        (["yes"] * 7, ["flu", "cold", "infection", "doctor_visit"]),
+        (["no"] * 7, []),
+        (["yes", "yes", "yes", "no", "no", "no", "no"], ["flu", "infection"]),
+        (["no", "yes", "no", "yes", "yes", "no", "no"], ["cold"]),
+        (["no", "no", "no", "no", "no", "yes", "yes"], ["doctor_visit"]),
+        (["yes", "no", "no", "no", "no", "no", "no"], []),
+        (["YES", "Yes", "yes", "no", "no", "no", "no"], ["flu", "infection"]),
+        ([" yes "] * 7, []),
+    ]
+    for notebook in (False, True):
+        for answers, expected in scenarios:
+            output = io.StringIO()
+            with patch("builtins.input", side_effect=answers) as prompt:
+                result = run_program(4, notebook=notebook, output=output)
+            assert prompt.call_count == 7
+            assert result["conclusions"] == expected
+            labels = re.findall(r"^Possible condition: (.+)$", output.getvalue(), re.MULTILINE)
+            assert labels == [label.replace("_", " ").title() for label in expected]
+            assert ("No matching condition found." in output.getvalue()) == (not expected)
+    print("PASS: PR4 text and notebook with 8 interactive answer scenarios each")
 
 
 def check_ml_programs():
@@ -148,5 +167,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     check_documents()
     check_search_and_rules()
+    check_expert_system()
     if args.ml:
         check_ml_programs()

@@ -29,6 +29,12 @@ jupyter lab
 
 Open the required `.ipynb`, select the environment's kernel, and run all cells from top to bottom. To check that a notebook does not depend on old variables, restart its kernel before running all cells.
 
+## Answer PR4's prompts
+
+Run `python pr4.txt` or run the PR4 notebook. Answer each of its seven questions with `yes` or `no`, then press Enter. Avoid spaces around your answer.
+
+For a rule-matching demonstration, answer `yes` to fever, cough, and body pain, then `no` to the remaining four questions. The program prints `Flu` and `Infection` as its matching rule labels. To exercise the no-match branch, answer `no` to every question. These are demonstration inputs.
+
 ## Supply PR5's dataset
 
 Place your course's `Titanic-Dataset.csv` beside `pr5.txt`. Start Python or Jupyter from that folder. The program expects these columns:
